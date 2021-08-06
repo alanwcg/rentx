@@ -1,5 +1,4 @@
 import React from 'react';
-import { useTheme } from 'styled-components';
 import { RectButtonProps } from 'react-native-gesture-handler';
 
 import {
@@ -9,18 +8,11 @@ import {
 
 interface Props extends RectButtonProps {
   title: string;
-  color?: string;
 }
 
-export function Button({
-  title,
-  color,
-  ...rest
-}: Props) {
-  const theme = useTheme();
-
+export function ConfirmButton({ title, ...rest }: Props) {
   return (
-    <Container {...rest} color={color ? color : theme.colors.main}>
+    <Container {...rest}>
       <Title>{title}</Title>
     </Container>
   );
