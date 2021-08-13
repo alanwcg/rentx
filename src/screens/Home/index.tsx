@@ -1,14 +1,20 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RFValue } from 'react-native-responsive-fontsize';
+import { useTheme } from 'styled-components';
 
 import Logo from '../../assets/logo.svg';
+
+import { api } from '../../services/api';
+import { CarDTO } from '../../dtos/CarDTO';
 
 import { RootStackParamList } from '../../routes/stack.routes';
 
 import { Car } from '../../components/Car';
+import { Load } from '../../components/Load';
 
 import {
   Container,
@@ -16,7 +22,9 @@ import {
   HeaderContent,
   TotalCars,
   CarList,
+  MyCarsButton,
 } from './styles';
+
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -25,20 +33,33 @@ type HomeScreenNavigationProp = NativeStackNavigationProp<
 
 export function Home() {
   const navigation = useNavigation<HomeScreenNavigationProp>();
+  const theme = useTheme();
 
-  const carData = {
-    brand: 'Audi',
-    name: 'RS 5 Coupé',
-    rent: {
-      period: 'Ao dia',
-      price: 120,
-    },
-    thumbnail: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQX9ULlIfz1HDoSSr6atk5wZmFr9nbCTp-kCjrygP6WIeiUu3NB1aQaragDpWKknPScpKI&usqp=CAU',
+  const [cars, setCars] = useState<CarDTO[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  function handleCardDetails(car: CarDTO) {
+    navigation.navigate('CarDetails', { car });
   }
 
-  function handleCardDetails() {
-    navigation.navigate('CarDetails');
+  function handleOpenMyCars() {
+    navigation.navigate('MyCars');
   }
+
+  useEffect(() => {
+    async function fetchCars() {
+      try {
+        const response = await api.get('/cars');
+        setCars(response.data);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchCars();
+  }, []);
 
   return (
     <Container>
@@ -57,14 +78,25 @@ export function Home() {
         </HeaderContent>
       </Header>
 
-      <CarList
-        data={[1, 2, 3, 4, 5, 6, 7]}
-        keyExtractor={item => String(item)}
-        renderItem={({ item }) => (
-          <Car data={carData} onPress={handleCardDetails} />
-        )}
-      />
-
+      {loading ? 
+        <Load /> : 
+        (
+          <CarList
+          data={cars}
+          keyExtractor={car => car.id}
+          renderItem={({ item: car }) => (
+            <Car data={car} onPress={() => handleCardDetails(car)} />
+          )}
+        />
+      )}
+      
+      <MyCarsButton onPress={handleOpenMyCars}>
+        <Ionicons
+          name="ios-car-sport"
+          size={32}
+          color={theme.colors.shape}
+        />
+      </MyCarsButton>
     </Container>
   );
 }
