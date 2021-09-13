@@ -12,6 +12,7 @@ import { api } from '../../services/api';
 
 import { BackButton } from '../../components/BackButton';
 import { Car } from '../../components/Car';
+import { LoadAnimation } from '../../components/LoadAnimation';
 
 import {
   Container,
@@ -28,7 +29,6 @@ import {
   CarFooterPeriod,
   CarFooterDate,
 } from './styles';
-import { Load } from '../../components/Load';
 
 type MyCarsScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -93,7 +93,7 @@ export function MyCars() {
       </Header>
 
       {loading ? (
-        <Load />
+        <LoadAnimation />
       ) : (
         <Content>
           <Appointments>
